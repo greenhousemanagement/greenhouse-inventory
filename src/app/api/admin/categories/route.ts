@@ -1,0 +1,184 @@
+import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
+
+// Create Supabase client for admin operations
+export let supabase = null
+try {
+  supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+} catch (e) {
+  console.error('Supabase client initialization error:', e)
+}
+
+export async function GET(request: Request) {
+  try {
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not initialized' },
+        { status: 500 }
+      )
+    }
+
+    // Fetch all categories
+    const { data, error } = await supabase
+      .from('categories')
+      .select('*')
+      .order('created_at', { ascending: true })
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      categories: data || []
+    })
+  } catch (error) {
+    console.error('Error fetching categories:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: Request) {
+  try {
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not initialized' },
+        { status: 500 }
+      )
+    }
+
+    const { name, description } = await request.json
+
+    if (!name) {
+      return NextResponse.json(
+        { error: 'Category name is required' },
+        { status: 400 }
+      )
+    }
+
+    // Insert new category
+    const { data, error } = await supabase
+      .from('categories')
+      .insert({ name, description })
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      category: data
+    })
+  } catch (error) {
+    console.error('Error creating category:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not initialized' },
+        { status: 500 }
+      )
+    }
+
+    const { id, name, description } = await request.json
+
+    if (!id || !name) {
+      return NextResponse.json(
+        { error: 'Category ID and name are required' },
+        { status: 400 }
+      )
+    }
+
+    // Update category
+    const { data, error } = await supabase
+      .from('categories')
+      .update({ name, description })
+      .eq('id', id)
+      .select()
+      .single()
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      category: data
+    })
+  } catch (error) {
+    console.error('Error updating category:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    if (!supabase) {
+      return NextResponse.json(
+        { error: 'Supabase not initialized' },
+        { status: 500 }
+      )
+    }
+
+    const { searchParams } = new URL(request.url)
+    const id = searchParams.get('id')
+
+    if (!id) {
+      return NextResponse.json(
+        { error: 'Category ID is required' },
+        { status: 400 }
+      )
+    }
+
+    // Delete category
+    const { error } = await supabase
+      .from('categories')
+      .delete()
+      .eq('id', id)
+
+    if (error) {
+      return NextResponse.json(
+        { error: error.message },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: 'Category deleted successfully'
+    })
+  } catch (error) {
+    console.error('Error deleting category:', error)
+    return NextResponse.json(
+      { error: 'Internal server error' },
+      { status: 500 }
+    )
+  }
+}
