@@ -1,0 +1,94 @@
+{
+  "name": "greenhouse-inventory",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "next": "14.2.4",  // or latest
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "^3.4.0",
+    "postcss": "^8.4.0",
+    "typescript": "^5.5.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-config-next": "^14.2.4"
+  }
+}
+Step 3: Create tailwind.config.js
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./app/**/*.{js,ts,jsx,tsx}",
+    "./components/**/*.{js,ts,jsx,tsx}",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        // Your nursery greenhouse color palette
+        green: "#10B981",
+        pink: "#EC4899", 
+        purple: "#8B5CF6",
+        dark: "#0F172A",
+        light: "#F8FAFC",
+      }
+    }
+  },
+  plugins: []
+}
+Step 4: Create tailwind.css
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom nursery theme colors */
+@layer base {
+  :root {
+    --background: 0 0% 100;
+    --foreground: 222 47% 11;
+    --card: 0 0% 100;
+    --card-foreground: 222 47% 11;
+    --popover: 0 0% 100;
+    --popover-foreground: 222 47% 11;
+    --primary: 142 76% 36; /* green #10B981 */
+    --primary-foreground: 0 0% 9;
+    --secondary: 319 100% 55; /* pink #EC4899 */
+    --secondary-foreground: 0 0% 9;
+    --accent: 259 100% 50; /* purple #8B5CF6 */
+    --accent-foreground: 0 0% 9;
+    --muted: 210 40% 96.1;
+    --muted-foreground: 215 20% 45.1;
+    --destructive: 0 84.6% 60.2;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214 32% 91.4;
+    --input: 214 32% 91.4;
+    --ring: 221.2 83.3% 53.3;
+  }
+  
+  .dark {
+    --background: 222 47% 11;
+    --foreground: 210 40% 98%;
+    --card: 222 47% 11;
+    --card-foreground: 210 40% 98%;
+    --popover: 222 47% 11;
+    --popover-foreground: 210 40% 98%;
+    --primary: 142 76% 36;
+    --primary-foreground: 0 0% 9;
+    --secondary: 319 100% 55;
+    --secondary-foreground: 0 0% 9;
+    --accent: 259 100% 50;
+    --accent-foreground: 0 0% 9;
+    --muted: 215 27.9% 16.9;
+    --muted-foreground: 215 27.9% 45.1;
+    --border: 215 27.9% 16.9;
+    --input: 215 27.9% 16.9;
+    --ring: 221.2 83.3% 53.3;
+  }
+}
