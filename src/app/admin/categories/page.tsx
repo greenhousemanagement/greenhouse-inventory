@@ -148,7 +148,7 @@ export default function AdminCategories() {
             />
             <input
               type="text"
-              value description || ''
+              value={description || ''}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Description"
               className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
