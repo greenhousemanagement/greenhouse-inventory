@@ -13,7 +13,8 @@ const supabase = createClient(
 
 export async function POST(request: Request) {
   try {
-    const { pin } = await request.json
+    const body = await request.json()
+    const { pin } = body
 
     if (!pin) {
       return NextResponse.json(
