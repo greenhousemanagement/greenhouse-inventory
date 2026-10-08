@@ -140,7 +140,7 @@ export default function AdminCategories() {
           <div className="grid grid-cols-2 gap-4 mb-4">
             <input
               type="text"
-              value name || ''
+              value={name || ''}
               onChange={(e) => setName(e.target.value)}
               placeholder="Category name"
               className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
