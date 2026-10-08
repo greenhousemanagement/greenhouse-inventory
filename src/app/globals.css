@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Nursery theme custom properties */
+:root {
+  --primary: #10B981;
+  --secondary: #EC4899;
+  --accent: #8B5CF6;
+}
