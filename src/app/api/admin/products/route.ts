@@ -59,6 +59,7 @@ export async function POST(request: Request) {
       )
     }
 
+    const body = await request.json()
     const {
       name,
       category_id,
@@ -69,7 +70,7 @@ export async function POST(request: Request) {
       seller_code,
       seller_contact,
       status
-    } = await request.json
+    } = body
 
     // Validate required fields
     if (!name || !category_id) {
