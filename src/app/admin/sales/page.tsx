@@ -133,7 +133,6 @@ export default function SalesDashboard() {
         </div>
       </div>
     )
-  }
 
   return (
     <div className="min-h-screen bg-background p-8 max-w-2xl mx-auto">
