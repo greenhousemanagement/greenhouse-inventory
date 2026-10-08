@@ -5,8 +5,6 @@ import Link from 'next/link'
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<'admin' | 'sales' | 'packaging' | 'customer' | null>(null)
-  const [pin, setPin] = useState('')
-  const [showError, setShowError] = useState(false)
 
   const roles = [
     { label: 'Admin', path: '/admin/auth-test', description: 'Greenhouse management, categories & products' },
@@ -15,34 +13,8 @@ export default function HomePage() {
     { label: 'Customer', path: '/customer/login', description: 'Browse products & place orders' },
   ]
 
-  const rolePins = {
-    admin: '8899',
-    sales: '1234',
-    packaging: '5678',
-    customer: '9999',
-  }
-
-  const roleDestinations = {
-    admin: '/admin/dashboard',
-    sales: '/sales/orders',
-    packaging: '/packaging/stock',
-    customer: '/customer/orders',
-  }
-
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role as 'admin' | 'sales' | 'packaging' | 'customer')
-  }
-
-  const handleLogin = async () => {
-    const expectedPin = rolePins[selectedRole as keyof typeof rolePins]
-    if (!pin || pin !== expectedPin) {
-      setShowError(true)
-      return
-    }
-
-    // Redirect to role-specific dashboard
-    const destination = roleDestinations[selectedRole as keyof typeof roleDestinations]
-    window.location.href = destination
   }
 
   if (!selectedRole) {
@@ -78,21 +50,32 @@ export default function HomePage() {
     )
   }
 
-  const roleConfig = {
-    label: selectedRole?.charAt(0).toUpperCase() + selectedRole?.slice(1) + ' Login',
-    pin: rolePins[selectedRole as keyof typeof rolePins],
-    destination: roleDestinations[selectedRole as keyof typeof roleDestinations],
+  // Redirect to the selected role's login page
+  const handleContinue = () => {
+    const roleMap: Record<string, string> = {
+      admin: '/admin/auth-test',
+      sales: '/sales/login',
+      packaging: '/packaging/login',
+      customer: '/customer/login',
+    }
+    window.location.href = roleMap[selectedRole as keyof typeof roleMap] || '/'
   }
+
+  const roleInfo = {
+    admin: { title: 'Admin Authentication', subtitle: 'Enter PIN: 8899' },
+    sales: { title: 'Sales Login', subtitle: 'Sales team access' },
+    packaging: { title: 'Packaging Login', subtitle: 'Stock update access' },
+    customer: { title: 'Customer Login', subtitle: 'Order placement access' },
+  }
+
+  const config = roleInfo[selectedRole as keyof typeof roleInfo]
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
-        <h2 className="text-2xl font-bold text-green-600 mb-6 text-center">{roleConfig.label}</h2>
+        <h2 className="text-2xl font-bold text-green-600 mb-4 text-center">{config.title}</h2>
+        <p className="text-gray-600 mb-6 text-center">{config.subtitle}</p>
         
-        {showError && (
-          <p className="mt-4 text-red-600 text-sm text-center">Invalid PIN. Please try again.</p>
-        )}
-
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -100,15 +83,13 @@ export default function HomePage() {
             </label>
             <input
               type="password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
-              className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
               placeholder="Enter PIN"
+              className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />
           </div>
 
           <button
-            onClick={handleLogin}
+            onClick={handleContinue}
             className="w-full py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors"
           >
             Login
@@ -120,7 +101,7 @@ export default function HomePage() {
             onClick=(() => setSelectedRole(null))
             className="text-gray-500 hover:text-green-600 text-sm transition-colors"
           >
-            Back to Home
+            Back to Role Selection
           </button>
         </div>
       </div>
