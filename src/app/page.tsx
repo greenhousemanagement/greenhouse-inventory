@@ -17,6 +17,10 @@ export default function HomePage() {
     setSelectedRole(role as 'admin' | 'sales' | 'packaging' | 'customer')
   }
 
+  const handleBack = () => {
+    setSelectedRole(null)
+  }
+
   if (!selectedRole) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-green-50 to-purple-100 p-8">
@@ -98,7 +102,7 @@ export default function HomePage() {
 
         <div className="mt-6 text-center">
           <button
-            onClick=(() => setSelectedRole(null))
+            onClick={handleBack}
             className="text-gray-500 hover:text-green-600 text-sm transition-colors"
           >
             Back to Role Selection
