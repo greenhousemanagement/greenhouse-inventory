@@ -126,6 +126,7 @@ export async function PUT(request: Request) {
       )
     }
 
+    const body = await request.json()
     const {
       id,
       name,
@@ -137,7 +138,7 @@ export async function PUT(request: Request) {
       seller_code,
       seller_contact,
       status
-    } = await request.json
+    } = body
 
     if (!id || !name) {
       return NextResponse.json(
