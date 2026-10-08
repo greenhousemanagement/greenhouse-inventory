@@ -8,9 +8,9 @@ export default function HomePage() {
 
   const roles = [
     { label: 'Admin', path: '/admin/auth-test', description: 'Greenhouse management, categories & products' },
-    { label: 'Sales', path: '/sales/login', description: 'Order management & sales tracking' },
-    { label: 'Packaging', path: '/packaging/login', description: 'Stock updates & inventory management' },
-    { label: 'Customer', path: '/customer/login', description: 'Browse products & place orders' },
+    { label: 'Sales', path: '/admin/sales', description: 'Order management & sales tracking' },
+    { label: 'Packaging', path: '/admin/packaging', description: 'Stock updates & inventory management' },
+    { label: 'Customer', path: '/admin/customer', description: 'Browse products & place orders' },
   ]
 
   const handleRoleSelect = (role: string) => {
@@ -58,9 +58,9 @@ export default function HomePage() {
   const handleContinue = () => {
     const roleMap: Record<string, string> = {
       admin: '/admin/auth-test',
-      sales: '/sales/login',
-      packaging: '/packaging/login',
-      customer: '/customer/login',
+      sales: '/admin/sales',
+      packaging: '/admin/packaging',
+      customer: '/admin/customer',
     }
     window.location.href = roleMap[selectedRole as keyof typeof roleMap] || '/'
   }
