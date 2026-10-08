@@ -56,7 +56,8 @@ export async function POST(request: Request) {
       )
     }
 
-    const { name, description } = await request.json
+    const body = await request.json()
+    const { name, description } = body
 
     if (!name) {
       return NextResponse.json(
