@@ -1,13 +1,16 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 
 export default function HomePage() {
   const [selectedRole, setSelectedRole] = useState<'admin' | 'sales' | 'packaging' | 'customer' | null>(null)
+  const [loginEmail, setLoginEmail] = useState('')
+  const [loginPassword, setLoginPassword] = useState('')
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
+  const [message, setMessage] = useState('')
 
   const roles = [
-    { label: 'Admin', path: '/admin/auth-test', description: 'Greenhouse management' },
+    { label: 'Admin', path: '/admin/dashboard', description: 'Greenhouse management' },
     { label: 'Sales', path: '/sales/login', description: 'Order management' },
     { label: 'Packaging', path: '/packaging/login', description: 'Stock updates' },
     { label: 'Customer', path: '/customer/login', description: 'Browse products' },
@@ -15,6 +18,37 @@ export default function HomePage() {
 
   const handleRoleSelect = (role: string) => {
     setSelectedRole(role as 'admin' | 'sales' | 'packaging' | 'customer')
+  }
+
+  const handleLogin = async () => {
+    setStatus('loading')
+    setMessage('')
+
+    try {
+      const response = await fetch('/api/admin/auth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setStatus('success')
+        setMessage(`Welcome, ${data.adminName}!`)
+        // Navigate to dashboard after successful login
+        window.location.href = '/admin/dashboard'
+      } else {
+        setStatus('error')
+        setMessage(data.error || 'Login failed')
+      }
+    } catch (error) {
+      setStatus('error')
+      setMessage('Connection error. Please try again.')
+      console.error('Login error:', error)
+    }
   }
 
   if (!selectedRole) {
@@ -43,7 +77,7 @@ export default function HomePage() {
   }
 
   const roleInfo = {
-    admin: { title: 'Admin Authentication', subtitle: 'PIN: 8899', path: '/admin/auth-test' },
+    admin: { title: 'Admin Authentication', subtitle: 'Enter admin credentials', path: '/admin/dashboard' },
     sales: { title: 'Sales Login', subtitle: 'Sales team access', path: '/sales/login' },
     packaging: { title: 'Packaging Login', subtitle: 'Stock update access', path: '/packaging/login' },
     customer: { title: 'Customer Login', subtitle: 'Order placement access', path: '/customer/login' },
@@ -58,22 +92,57 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold text-green-600 mb-4 text-center">{roleData.title}</h2>
         <p className="text-gray-600 mb-6 text-center">{roleData.subtitle}</p>
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
-            <input
-              type="password"
-              autoComplete="new-password"
-              placeholder="Enter PIN"
-              className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
-            />
-          </div>
+          {selectedRole === 'admin' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                autoComplete="email"
+                value={loginEmail}
+                onChange={(e) => setLoginEmail(e.target.value)}
+                className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Enter admin email"
+                required
+              />
+            </div>
+          )}
+          {selectedRole === 'admin' && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Password
+              </label>
+              <input
+                type="password"
+                autoComplete="current-password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
+                placeholder="Enter admin password"
+                required
+              />
+            </div>
+          )}
+          {selectedRole !== 'admin' || (selectedRole === 'admin' && status !== 'loading')}
           <button
-            onClick={() => window.location.href = roleData.path}
+            onClick={handleLogin}
+            disabled={status === 'loading'}
             className="w-full py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors"
           >
-            Login
+            {status === 'loading' ? 'Logging In...' : 'Sign In'}
           </button>
         </div>
+        {selectedRole === 'admin' && status === 'error' && (
+          <div className="mb-4 p-4 bg-red-100/50 rounded text-red-200 text-center">
+            <p className="font-medium">{message}</p>
+          </div>
+        )}
+        {selectedRole === 'admin' && status === 'success' && (
+          <div className="mb-4 p-4 bg-green-100/50 rounded text-green-200 text-center">
+            <p className="font-medium">{message}</p>
+          </div>
+        )}
         <div className="mt-6 text-center">
           <button
             onClick={() => setSelectedRole(null)}
