@@ -1,25 +1,19 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Create Supabase client
-// These env vars should be set: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_ANON_KEY
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase env vars not configured, using fallback auth')
-}
-
+// Supabase client initialization
 let supabase = null
-try {
-  supabase = createClient(supabaseUrl, supabaseAnonKey)
-} catch (e) {
-  console.error('Supabase client initialization error:', e)
-}
 
-// Default admin credentials for fallback authentication
-const FALLBACK_ADMIN_EMAIL = 'admin@greenhouse.com'
-const FALLBACK_ADMIN_PASSWORD = 'admin123'
+if (process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+  try {
+    supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+    )
+  } catch (e) {
+    console.error('Supabase client initialization error:', e)
+  }
+}
 
 export async function POST(request: Request) {
   try {
@@ -33,46 +27,41 @@ export async function POST(request: Request) {
       )
     }
 
-    // Try Supabase verification first
-    if (supabase) {
-      try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        })
+    // Use Supabase built-in authentication
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
 
-        if (error) {
-          // Fall through to fallback if Supabase fails
-        } else {
-          // Return admin session data
-          return NextResponse.json({
-            success: true,
-            adminId: data.user?.id,
-            adminName: data.user?.user_metadata?.name || data.user?.email?.split('@')[0] || 'Admin',
-            role: 'admin',
-            message: 'Admin authentication successful'
-          })
-        }
-      } catch (supaError) {
-        console.error('Supabase auth error, falling back to fallback:', supaError)
-      }
+    if (error) {
+      return NextResponse.json(
+        { error: error.message || 'Invalid email or password' },
+        { status: 401 }
+      )
     }
 
-    // Fallback: verify against hardcoded admin credentials (works without Supabase config)
-    if (email === FALLBACK_ADMIN_EMAIL && password === FALLBACK_ADMIN_PASSWORD) {
-      return NextResponse.json({
-        success: true,
-        adminId: 'admin-fallback-1',
-        adminName: 'Admin User',
-        role: 'admin',
-        message: 'Admin authentication successful'
-      })
+    // Check profiles table for admin role (single admin setup)
+    const { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('name, role')
+      .eq('id', data.user?.id)
+      .single()
+
+    if (profileError || profile?.role !== 'admin') {
+      return NextResponse.json(
+        { error: 'Admin access required' },
+        { status: 403 }
+      )
     }
 
-    return NextResponse.json(
-      { error: 'Invalid email or password' },
-      { status: 401 }
-    )
+    // Return admin session data
+    return NextResponse.json({
+      success: true,
+      adminId: data.user?.id,
+      adminName: profile?.name || data.user?.email?.split('@')[0] || 'Admin',
+      role: profile?.role || 'admin',
+      message: 'Admin authentication successful'
+    })
   } catch (error) {
     console.error('Admin auth error:', error)
     return NextResponse.json(
