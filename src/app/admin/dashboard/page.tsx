@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 
 export default function AdminDashboard() {
@@ -37,28 +37,16 @@ export default function AdminDashboard() {
     }
   }
 
-  // Simple content based on section
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen p-8">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
-          <p className="mt-4">Authenticating...</p>
-        </div>
-      </div>
-    )
-  }
-
   // Simple dashboard based on selected section
   const sectionMap: Record<string, string> = {
     categories: 'Categories Management',
     products: 'Products Management',
   }
 
-  const sectionTitle = sections === 'categories' 
+  const sectionTitle = sections === 'categories'
     ? 'Categories'
-    : sections === 'products' 
-    ? 'Products' 
+    : sections === 'products'
+    ? 'Products'
     : 'Dashboard'
 
   return (

@@ -10,6 +10,7 @@ export default function AdminCategories() {
   const [currentCategory, setCurrentCategory] = useState<any>(null)
   const [name, setName] = useState('')
   const [description, setDescription] = useState('')
+  const [type, setType] = useState<'flowers' | 'plant' | 'seeds'>('flowers')
   const [message, setMessage] = useState('')
 
   // Fetch categories
@@ -45,7 +46,7 @@ export default function AdminCategories() {
         const response = await fetch('/api/admin/categories', {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id: currentCategory.id, name, description })
+          body: JSON.stringify({ id: currentCategory.id, name, description, type })
         })
         const data = await response.json()
         if (data.success) {
@@ -53,6 +54,7 @@ export default function AdminCategories() {
           setCurrentCategory(null)
           setName('')
           setDescription('')
+          setType('flowers')
           setEditing(false)
           useEffect(() => {}, []) // re-fetch
         } else {
@@ -63,13 +65,14 @@ export default function AdminCategories() {
         const response = await fetch('/api/admin/categories', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, description })
+          body: JSON.stringify({ name, description, type })
         })
         const data = await response.json()
         if (data.success) {
           setMessage('Category added successfully')
           setName('')
           setDescription('')
+          setType('flowers')
           useEffect(() => {}, []) // re-fetch
         } else {
           setMessage(data.error || 'Failed to add')
@@ -112,7 +115,7 @@ export default function AdminCategories() {
         {/* Message */}
         {message && (
           <div className="mb-4 p-3 rounded mb-6 text-center">
-            {message.startsWith('Loaded') || message.startsWith('Added') || message.startsWith('Updated') 
+            {message.startsWith('Loaded') || message.startsWith('Added') || message.startsWith('Updated')
               ? <p className="text-green-200 font-medium">{message}</p>
               : <p className="text-red-200 font-medium">{message}</p>}
           </div>
@@ -155,8 +158,17 @@ export default function AdminCategories() {
               placeholder="Description"
               className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
             />
+            <select
+              value={type}
+              onChange={(e) => setType(e.target.value as 'flowers' | 'plant' | 'seeds')}
+              className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
+            >
+              <option value="flowers">Flowers</option>
+              <option value="plant">Plant</option>
+              <option value="seeds">Seeds</option>
+            </select>
           </div>
-          <div className="mt-4">
+          <div className="mb-4">
             <button
               onClick={handleSave}
               className="w-full py-2 rounded bg-primary text-white font-medium transition-colors hover:bg-primary/90"
@@ -171,6 +183,7 @@ export default function AdminCategories() {
           <table className="min-w-full text-sm text-white">
             <thead>
               <tr className="border-b border-white/10">
+                <th className="text-left p-2">Type</th>
                 <th className="text-left p-2">Name</th>
                 <th className="text-left p-2">Description</th>
                 <th className="text-left p-2">Status</th>
@@ -180,6 +193,13 @@ export default function AdminCategories() {
             <tbody>
               {categories.map((cat: any) => (
                 <tr key={cat.id} className="border-b border-white/10 hover:bg-gray-900/20">
+                  <td className="p-2">
+                    <span
+                      className={`inline-flex items-center px-2 rounded text-xs ${cat.type === 'active' ? 'bg-green-600/30 text-green-200' : 'bg-gray-600/30 text-gray-300'}`}
+                    >
+                      {cat.type || 'flowers'}
+                    </span>
+                  </td>
                   <td className="p-2 font-medium">{cat.name}</td>
                   <td className="p-2 text-sm text-gray-400">{cat.description || '-'}</td>
                   <td className="p-2">

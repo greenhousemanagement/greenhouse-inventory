@@ -155,6 +155,22 @@ export default function AdminProducts() {
     }
   }
 
+  // Fetch categories for the select dropdown
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch('/api/admin/categories')
+        const data = await response.json()
+        if (data.success) {
+          setCategories(data.categories)
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error)
+      }
+    }
+    fetchCategories()
+  }, [])
+
   return (
     <div className="min-h-screen bg-background p-8 max-w-2xl mx-auto">
       <div className="bg-white dark:bg-gray-800 rounded-lg p-8 shadow-md">
@@ -165,7 +181,7 @@ export default function AdminProducts() {
         {/* Message */}
         {message && (
           <div className="mb-4 p-3 rounded mb-6 text-center">
-            {message.startsWith('Loaded') || message.startsWith('Added') || message.startsWith('Updated') 
+            {message.startsWith('Loaded') || message.startsWith('Added') || message.startsWith('Updated')
               ? <p className="text-green-200 font-medium">{message}</p>
               : <p className="text-red-200 font-medium">{message}</p>}
           </div>
@@ -299,6 +315,7 @@ export default function AdminProducts() {
                 <th className="text-left p-2">Items/Box</th>
                 <th className="text-left p-2">Raw Rate</th>
                 <th className="text-left p-2">Seller Code</th>
+                <th className="text-left p-2">Seller Contact</th>
                 <th className="text-left p-2">Status</th>
                 <th className="text-left p-2">Actions</th>
               </tr>
@@ -314,6 +331,7 @@ export default function AdminProducts() {
                   <td className="p-2">{prod.items_per_box || 0}</td>
                   <td className="p-2">₹{prod.raw_rate || 0}</td>
                   <td className="p-2 text-sm text-gray-400">{prod.seller_code || '-'}</td>
+                  <td className="p-2 text-sm text-gray-400">{prod.seller_contact || '-'}</td>
                   <td className="p-2">
                     <span
                       className={`inline-flex items-center px-2 rounded text-xs ${prod.status === 'active' ? 'bg-green-600/30 text-green-200' : 'bg-gray-600/30 text-gray-300'}`}
