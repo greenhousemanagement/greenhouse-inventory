@@ -9,36 +9,6 @@ export default function AdminDashboard() {
   const [sections, setSections] = useState<'categories' | 'products'>('categories')
   const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const handleLogin = async () => {
-    setStatus('loading')
-    setMessage('')
-
-    try {
-      const response = await fetch('/api/admin/auth', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email: 'admin@greenhouse.com', password: 'admin123' }),
-      })
-
-      const data = await response.json()
-
-      if (response.ok) {
-        setStatus('success')
-        setMessage(`Welcome, ${data.adminName}!`)
-        setIsLoggedIn(true)
-      } else {
-        setStatus('error')
-        setMessage(data.error || 'Login failed')
-      }
-    } catch (error) {
-      setStatus('error')
-      setMessage('Connection error. Please try again.')
-      console.error('Login error:', error)
-    }
-  }
-
   // Simple dashboard based on selected section
   const sectionMap: Record<string, string> = {
     categories: 'Categories Management',
@@ -87,9 +57,9 @@ export default function AdminDashboard() {
         {!isLoggedIn && (
           <div className="mt-8 pt-8 border-t border-gray-200">
             <p className="text-gray-500 text-sm">
-              <button onClick={handleLogin} className="underline text-primary hover:text-primary/90">
-                Login as Admin (email: admin@greenhouse.com / password: admin123)
-              </button>
+              <a href="/" className="underline text-primary hover:text-primary/90">
+                Go to home page to login as admin (admin@greenhouse.com / admin123)
+              </a>
             </p>
           </div>
         )}
