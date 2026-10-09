@@ -1,12 +1,18 @@
 'use client'
 
+import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 
 export default function AdminPage() {
   const router = useRouter()
 
-  // Redirect to dashboard - no more auth-test redirect
-  // router.push('/admin/auth-test')
+  useEffect(() => {
+    // Redirect to dashboard when admin page is accessed directly
+    const timeoutId = setTimeout(() => {
+      router.push('/admin/dashboard')
+    }, 500)
+    return () => clearTimeout(timeoutId)
+  }, [router])
 
   return null
 }
