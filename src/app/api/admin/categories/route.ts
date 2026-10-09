@@ -1,19 +1,22 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
-// Create Supabase client for admin operations
-export let supabase = null
-try {
-  supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
-} catch (e) {
-  console.error('Supabase client initialization error:', e)
+// Helper to create Supabase client
+const createSupabaseClient = () => {
+  try {
+    return createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    )
+  } catch (e) {
+    console.error('Supabase client initialization error:', e)
+    return null
+  }
 }
 
 export async function GET(request: Request) {
   try {
+    const supabase = createSupabaseClient()
     if (!supabase) {
       return NextResponse.json(
         { error: 'Supabase not initialized' },
@@ -49,6 +52,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
+    const supabase = createSupabaseClient()
     if (!supabase) {
       return NextResponse.json(
         { error: 'Supabase not initialized' },
@@ -95,6 +99,7 @@ export async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
+    const supabase = createSupabaseClient()
     if (!supabase) {
       return NextResponse.json(
         { error: 'Supabase not initialized' },
@@ -142,6 +147,7 @@ export async function PUT(request: Request) {
 
 export async function DELETE(request: Request) {
   try {
+    const supabase = createSupabaseClient()
     if (!supabase) {
       return NextResponse.json(
         { error: 'Supabase not initialized' },
