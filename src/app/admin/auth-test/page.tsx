@@ -3,7 +3,8 @@
 import { useState } from 'react'
 
 export default function AdminAuthTest() {
-  const [pin, setPin] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [message, setMessage] = useState('')
 
@@ -17,7 +18,7 @@ export default function AdminAuthTest() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ pin }),
+        body: JSON.stringify({ email, password }),
       })
 
       const data = await response.json()
@@ -63,15 +64,30 @@ export default function AdminAuthTest() {
         <form onSubmit={handleLogin} className="mt-6">
           <div className="mb-4">
             <label className="block text-sm font-medium text-white mb-2">
-              Admin PIN
+              Email
+            </label>
+            <input
+              type="email"
+              autoComplete="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
+              placeholder="Enter admin email"
+              required
+            />
+          </div>
+          
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-white mb-2">
+              Password
             </label>
             <input
               type="password"
-              autoComplete="new-password"
-              value={pin}
-              onChange={(e) => setPin(e.target.value)}
+              autoComplete="current-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
-              placeholder="Enter admin PIN (8899)"
+              placeholder="Enter admin password"
               required
             />
           </div>

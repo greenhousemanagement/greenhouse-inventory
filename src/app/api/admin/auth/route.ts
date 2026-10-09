@@ -2,17 +2,17 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 
 // Create Supabase client
-// These env vars should be set: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+// These env vars should be set: NEXT_PUBLIC_SUPABASE_URL, SUPABASE_ANON_KEY
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 
-if (!supabaseUrl || !supabaseServiceKey) {
-  console.warn('Supabase env vars not configured, using PIN-based auth fallback')
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Supabase env vars not configured')
 }
 
 let supabase = null
 try {
-  supabase = createClient(supabaseUrl, supabaseServiceKey)
+  supabase = createClient(supabaseUrl, supabaseAnonKey)
 } catch (e) {
   console.error('Supabase client initialization error:', e)
 }
@@ -20,57 +20,51 @@ try {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const { pin } = body
+    const { email, password } = body
 
-    if (!pin) {
+    if (!email || !password) {
       return NextResponse.json(
-        { error: 'PIN is required' },
+        { error: 'Email and password are required' },
         { status: 400 }
       )
     }
 
-    // Try Supabase verification first
+    // Use Supabase built-in authentication
     if (supabase) {
       try {
-        const { data, error } = await supabase
-          .from('profiles')
-          .select('id, name, role, pin')
-          .eq('role', 'admin')
-          .eq('pin', pin)
-          .single()
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        })
 
-        if (error || !data) {
-          // Fall back to hardcoded PIN if Supabase fails
-        } else {
-          // Return admin session data (no sensitive PIN in response)
-          return NextResponse.json({
-            success: true,
-            adminId: data.id,
-            adminName: data.name,
-            role: data.role,
-            message: 'Admin authentication successful'
-          })
+        if (error) {
+          return NextResponse.json(
+            { error: error.message || 'Invalid email or password' },
+            { status: 401 }
+          )
         }
+
+        // Return admin session data
+        return NextResponse.json({
+          success: true,
+          adminId: data.user?.id,
+          adminName: data.user?.user_metadata?.name || data.user?.email?.split('@')[0] || 'Admin',
+          role: 'admin',
+          message: 'Admin authentication successful'
+        })
       } catch (supaError) {
-        console.error('Supabase auth error, falling back to PIN:', supaError)
+        console.error('Supabase auth error:', supaError)
+        return NextResponse.json(
+          { error: 'Authentication service unavailable' },
+          { status: 500 }
+        )
       }
     }
 
-    // Fallback: verify against hardcoded admin PIN (8899)
-    const ADMIN_PIN = '8899'
-    if (pin === ADMIN_PIN) {
-      return NextResponse.json({
-        success: true,
-        adminId: 'admin-1',
-        adminName: 'Admin User',
-        role: 'admin',
-        message: 'Admin authentication successful'
-      })
-    }
-
+    // Fallback when Supabase is not configured
     return NextResponse.json(
-      { error: 'Invalid PIN or admin not found' },
-      { status: 401 }
+      { error: 'Supabase not configured - please set up Supabase credentials' },
+      { status: 501 }
     )
   } catch (error) {
     console.error('Admin auth error:', error)
