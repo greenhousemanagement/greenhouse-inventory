@@ -62,6 +62,7 @@ export default function HomePage() {
             <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
             <input
               type="password"
+              autoComplete="new-password"
               placeholder="Enter PIN"
               className="w-full p-3 rounded border focus:ring-2 focus:ring-green-500 focus:border-transparent"
             />

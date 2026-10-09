@@ -67,6 +67,7 @@ export default function AdminAuthTest() {
             </label>
             <input
               type="password"
+              autoComplete="new-password"
               value={pin}
               onChange={(e) => setPin(e.target.value)}
               className="mt-1 block w-full rounded border-white/20 bg-gray-900/50 text-white px-3 py-2"
