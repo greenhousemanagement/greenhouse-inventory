@@ -42,31 +42,21 @@ export default function HomePage() {
     )
   }
 
-  // Simple redirect - just go to the role's login page
-  const handleContinue = () => {
-    const roleMap: Record<string, string> = {
-      admin: '/admin/auth-test',
-      sales: '/sales/login',
-      packaging: '/packaging/login',
-      customer: '/customer/login',
-    }
-    window.location.href = roleMap[selectedRole as keyof typeof roleMap] || '/'
-  }
-
   const roleInfo = {
-    admin: { title: 'Admin Authentication', subtitle: 'PIN: 8899' },
-    sales: { title: 'Sales Login', subtitle: 'Sales team access' },
-    packaging: { title: 'Packaging Login', subtitle: 'Stock update access' },
-    customer: { title: 'Customer Login', subtitle: 'Order placement access' },
+    admin: { title: 'Admin Authentication', subtitle: 'PIN: 8899', path: '/admin/auth-test' },
+    sales: { title: 'Sales Login', subtitle: 'Sales team access', path: '/sales/login' },
+    packaging: { title: 'Packaging Login', subtitle: 'Stock update access', path: '/packaging/login' },
+    customer: { title: 'Customer Login', subtitle: 'Order placement access', path: '/customer/login' },
   }
 
-  const config = roleInfo[selectedRole as keyof typeof roleInfo]
+  // Safely get role info - use admin as default if selectedRole is unexpected
+  const roleData = roleInfo[selectedRole as keyof typeof roleInfo] || roleInfo.admin
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="max-w-md w-full bg-white rounded-2xl shadow-2xl p-8">
-        <h2 className="text-2xl font-bold text-green-600 mb-4 text-center">{config.title}</h2>
-        <p className="text-gray-600 mb-6 text-center">{config.subtitle}</p>
+        <h2 className="text-2xl font-bold text-green-600 mb-4 text-center">{roleData.title}</h2>
+        <p className="text-gray-600 mb-6 text-center">{roleData.subtitle}</p>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">PIN</label>
@@ -77,7 +67,7 @@ export default function HomePage() {
             />
           </div>
           <button
-            onClick={handleContinue}
+            onClick={() => window.location.href = roleData.path}
             className="w-full py-3 bg-green-600 text-white font-medium rounded-xl hover:bg-green-700 transition-colors"
           >
             Login
