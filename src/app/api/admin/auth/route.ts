@@ -10,7 +10,7 @@ if (!supabaseUrl || !supabaseServiceKey) {
   console.warn('Supabase env vars not configured, using PIN-based auth fallback')
 }
 
-const supabase = null
+let supabase = null
 try {
   supabase = createClient(supabaseUrl, supabaseServiceKey)
 } catch (e) {
